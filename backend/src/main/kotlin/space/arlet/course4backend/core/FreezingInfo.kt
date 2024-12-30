@@ -1,12 +1,15 @@
 package space.arlet.course4backend.core
 
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.ManyToOne
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import java.time.LocalDate
+
 @Entity
-@Table(name = "freezings_info")
+@Table(
+    name = "freezings_info",
+    indexes = [
+        Index(columnList = "temperature")
+    ]
+)
 data class FreezingInfo(
     @Id
     @ManyToOne

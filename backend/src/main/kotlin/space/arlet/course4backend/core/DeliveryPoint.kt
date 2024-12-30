@@ -3,7 +3,12 @@ package space.arlet.course4backend.core
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "delivery_points")
+@Table(
+    name = "delivery_points",
+    indexes = [
+        Index(columnList = "packsCapacity")
+    ]
+)
 data class DeliveryPoint(
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

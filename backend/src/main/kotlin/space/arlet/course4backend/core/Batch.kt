@@ -4,7 +4,14 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "batches")
+@Table(
+    name = "batches",
+    indexes = [
+        Index(name = "package_time_index", columnList = "packageTime"),
+        Index(name = "packs_count_index", columnList = "packsCount"),
+        Index(name = "summary_mass_index", columnList = "summaryMass"),
+    ],
+)
 data class Batch(
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -26,6 +27,8 @@ class DeliveryPointController @Autowired constructor(
     val rangeFilter: RangeFilter,
     val deliveryPointTypeRepo: DeliveryPointTypeRepo,
 ) {
+    private val logger = LoggerFactory.getLogger("application")
+
     @Operation(summary = "Get all delivery points")
     @ApiResponses(
         value = [
@@ -56,6 +59,8 @@ class DeliveryPointController @Autowired constructor(
         @RequestParam(name = "packs_capacity_eq", required = false) eqPacksCapacity: Int?,
         @RequestParam(name = "point_type", required = false) pointType: String?,
     ): List<DeliveryPoint> {
+        logger.debug("start getting delivery points")
+
         val deliveryPoints = deliveryPointRepo.findAll().toList().filter {
             if (!rangeFilter.inRange(
                     it.packsCapacity,
@@ -110,6 +115,8 @@ class DeliveryPointController @Autowired constructor(
     @PostMapping("\${api.path}/delivery_points")
     @ResponseBody
     fun addDeliveryPoint(@RequestBody deliveryPoint: DeliveryPoint): ResponseEntity<EntityCreatedResponse<Int>> {
+        logger.debug("start adding delivery point")
+
         try {
             val createdEntity = deliveryPointRepo.save(deliveryPoint)
 
@@ -147,6 +154,8 @@ class DeliveryPointController @Autowired constructor(
     @GetMapping("\${api.path}/delivery_points/{id}")
     @ResponseBody
     fun getDeliveryPoint(@PathVariable id: Int): DeliveryPoint {
+        logger.debug("start getting delivery point")
+
         val deliveryPoint = deliveryPointRepo.findById(id)
 
         if (deliveryPoint.isEmpty) {
@@ -177,6 +186,8 @@ class DeliveryPointController @Autowired constructor(
     )
     @DeleteMapping("\${api.path}/delivery_points/{id}")
     fun deleteDeliveryPoint(@PathVariable id: Int): ResponseEntity<String> {
+        logger.debug("start delete delivery points")
+
         val deliveryPoint = deliveryPointRepo.findById(id)
         if (deliveryPoint.isPresent) {
             deliveryPointRepo.deleteById(id)
@@ -209,6 +220,8 @@ class DeliveryPointController @Autowired constructor(
     fun updateDeliveryPoint(
         @RequestBody deliveryPoint: DeliveryPoint,
     ) {
+        logger.debug("start updating delivery points")
+
         try {
             deliveryPointRepo.save(deliveryPoint)
         } catch (_: IllegalArgumentException) {
@@ -239,6 +252,8 @@ class DeliveryPointController @Autowired constructor(
     @GetMapping("\${api.path}/delivery_points/types")
     @ResponseBody
     fun getDeliveryPointTypes(): List<String> {
+        logger.debug("start getting delivery point types")
+
         val deliveryPointTypes = deliveryPointTypeRepo.findAll().toList().map { it.name }
 
         if (deliveryPointTypes.isEmpty()) {

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -24,6 +25,8 @@ class FactoryController @Autowired constructor(
     private val factoryRepo: FactoryRepo,
     private val deliveryRepo: DeliveryRepo,
 ) {
+    private val logger = LoggerFactory.getLogger("application")
+
     @Operation(summary = "Get all factories")
     @ApiResponses(
         value = [
@@ -47,6 +50,8 @@ class FactoryController @Autowired constructor(
     @GetMapping("\${api.path}/factories")
     @ResponseBody
     fun getFactories(): List<Factory> {
+        logger.debug("start getting factories")
+
         val factories = factoryRepo.findAll().toList().sortedBy { it.id }
 
         if (factories.isEmpty()) {
@@ -87,6 +92,8 @@ class FactoryController @Autowired constructor(
     @PostMapping("\${api.path}/factories")
     @ResponseBody
     fun addFactory(@RequestBody factory: Factory): ResponseEntity<EntityCreatedResponse<Int>> {
+        logger.debug("start adding factory")
+
         try {
             val createdEntity = factoryRepo.save(factory)
 
@@ -124,6 +131,8 @@ class FactoryController @Autowired constructor(
     @GetMapping("\${api.path}/factories/{id}")
     @ResponseBody
     fun getFactory(@PathVariable id: Int): Factory {
+        logger.debug("start getting factory")
+
         val factory = factoryRepo.findById(id)
 
         if (factory.isEmpty) {
@@ -154,6 +163,8 @@ class FactoryController @Autowired constructor(
     )
     @DeleteMapping("\${api.path}/factories/{id}")
     fun deleteFactory(@PathVariable id: Int): ResponseEntity<String> {
+        logger.debug("start deleting factory")
+
         val factory = factoryRepo.findById(id)
         if (factory.isPresent) {
             deliveryRepo.findAllByFactory(factory.get()).forEach {
@@ -190,6 +201,8 @@ class FactoryController @Autowired constructor(
     fun updateFactory(
         @RequestBody factory: Factory
     ) {
+        logger.debug("start updating factory")
+
         try {
             factoryRepo.save(factory)
         } catch (_: IllegalArgumentException) {

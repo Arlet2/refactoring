@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -25,6 +26,8 @@ class TransportController @Autowired constructor(
     private val transportRepo: TransportRepo,
     private val rangeFilter: RangeFilter,
 ) {
+    private val logger = LoggerFactory.getLogger("application")
+
     @Operation(summary = "Get all transports")
     @ApiResponses(
         value = [
@@ -59,6 +62,8 @@ class TransportController @Autowired constructor(
         @RequestParam(name = "max_weight_less_eq", required = false) lessEqMaxWeight: Double?,
         @RequestParam(name = "max_weight_eq", required = false) eqMaxWeight: Double?,
     ): List<Transport> {
+        logger.debug("start getting transports")
+
         val transports = transportRepo.findAll().toList().filter {
             if (!rangeFilter.inRange(
                     it.packsCapacity,
@@ -122,6 +127,8 @@ class TransportController @Autowired constructor(
     @PostMapping("\${api.path}/transports")
     @ResponseBody
     fun addTransport(@RequestBody transport: Transport): ResponseEntity<EntityCreatedResponse<String>> {
+        logger.debug("start adding transports")
+
         if (transport.transportNumber == "")
             throw BadEntityException("transport number must be not empty")
         if (transportRepo.existsById(transport.transportNumber))
@@ -163,6 +170,8 @@ class TransportController @Autowired constructor(
     @GetMapping("\${api.path}/transports/{number}")
     @ResponseBody
     fun getTransport(@PathVariable number: String): Transport {
+        logger.debug("start getting transport")
+
         val transport = transportRepo.findById(number)
 
         if (transport.isEmpty) {
@@ -193,6 +202,8 @@ class TransportController @Autowired constructor(
     )
     @DeleteMapping("\${api.path}/transports/{number}")
     fun deleteTransport(@PathVariable number: String): ResponseEntity<String> {
+        logger.debug("start deleting transport")
+
         if (transportRepo.existsById(number)) {
             transportRepo.deleteById(number)
             return ResponseEntity(HttpStatus.OK)
@@ -224,6 +235,8 @@ class TransportController @Autowired constructor(
     fun updateTransport(
         @RequestBody transport: Transport
     ) {
+        logger.debug("start updating transport")
+
         try {
             transportRepo.save(transport)
         } catch (_: IllegalArgumentException) {

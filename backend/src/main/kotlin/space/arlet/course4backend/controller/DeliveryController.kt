@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import lombok.extern.log4j.Log4j2
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -25,6 +27,7 @@ import space.arlet.course4backend.repo.TransportRepo
 import java.time.LocalDateTime
 
 @RestController
+@Log4j2
 class DeliveryController @Autowired constructor(
     private val deliveryRepo: DeliveryRepo,
     private val factoryRepo: FactoryRepo,
@@ -33,6 +36,8 @@ class DeliveryController @Autowired constructor(
     private val dateFilter: DateFilter,
     private val rangeFilter: RangeFilter,
 ) {
+    private val logger = LoggerFactory.getLogger("application")
+
     data class DeliveryCreatingEntity(
         val id: Int,
         val transportNumber: String?,
@@ -82,6 +87,8 @@ class DeliveryController @Autowired constructor(
         @RequestParam(name = "arrival_date_after", required = false) arrivalDateAfter: LocalDateTime?,
         @RequestParam(name = "arrival_date_on", required = false) arrivalDateOn: LocalDateTime?,
     ): List<Delivery> {
+        logger.debug("start getting deliveries")
+
         val deliveries = deliveryRepo.findAll().toList().filter {
             if (!rangeFilter.equal(it.transport?.transportNumber, transportNumber))
                 return@filter false
@@ -116,6 +123,7 @@ class DeliveryController @Autowired constructor(
         }.sortedBy { it.id }
 
         if (deliveries.isEmpty()) {
+            logger.debug("deliveries is empty")
             throw EntityNotFoundException("deliveries")
         }
 
@@ -145,6 +153,8 @@ class DeliveryController @Autowired constructor(
     )
     @PostMapping("\${api.path}/deliveries")
     fun addDelivery(@RequestBody delivery: DeliveryCreatingEntity): ResponseEntity<EntityCreatedResponse<Int>> {
+        logger.debug("start adding deliveries")
+
         try {
             val createdEntity = deliveryRepo.save(
                 Delivery(
@@ -200,6 +210,7 @@ class DeliveryController @Autowired constructor(
     @GetMapping("\${api.path}/deliveries/{id}")
     @ResponseBody
     fun getDelivery(@PathVariable id: Int): Delivery {
+        logger.debug("start getting delivery by ID")
         val delivery = deliveryRepo.findById(id)
 
         if (delivery.isEmpty) {
@@ -230,6 +241,8 @@ class DeliveryController @Autowired constructor(
     )
     @DeleteMapping("\${api.path}/deliveries/{id}")
     fun deleteDelivery(@PathVariable id: Int): ResponseEntity<String> {
+        logger.debug("start deleting deliveries")
+
         if (deliveryRepo.existsById(id)) {
             deliveryRepo.deleteById(id)
             return ResponseEntity(HttpStatus.OK)
@@ -261,6 +274,7 @@ class DeliveryController @Autowired constructor(
     fun updateTransport(
         @RequestBody delivery: DeliveryCreatingEntity
     ) {
+        logger.debug("start updating transport")
         try {
             deliveryRepo.save(
                 Delivery(
