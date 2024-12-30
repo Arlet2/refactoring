@@ -5,6 +5,9 @@ import jakarta.persistence.Id
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 
+/***
+ * ConveyorPelmeni характеризует на каком конвейере какие пельмени производятся
+ */
 @Entity
 @Table(name = "pelmeni_conveyors")
 data class ConveyorPelmeni(
